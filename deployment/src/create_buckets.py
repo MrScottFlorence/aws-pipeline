@@ -19,7 +19,7 @@ class Create_resources():
                 github_secrets: dict = os.environ['GITHUB_TOKEN']
                 os.environ['AWS_ACCESS_KEY_ID'] = github_secrets['AWS_ACCESS_KEY']
                 os.environ['AWS_SECRET_ACCESS_KEY'] = github_secrets['AWS_SECRET_KEY']
-                
+
             self.s3 = boto3.client('s3',
                                    region_name='us-east-1')
         except ClientError as ce:
@@ -53,9 +53,11 @@ class Create_resources():
             with open("lambda.zip", "rb") as file:
                 self.s3.upload_fileobj(file, code_bucket, lambda_name+".zip")
         except ClientError as nb:
-            print(f"Bucket does not exist. Upload of {lambda_name} to {code_bucket} failed")
+            print(
+                f"Bucket does not exist. Upload of {lambda_name} to {code_bucket} failed")
         except Exception as e:
             raise e
+
 
 def zip_directory(folder_path: str):
     """Create a zip file, where the contents are at the top level where they would be with respect for their folder's path"""
@@ -63,5 +65,5 @@ def zip_directory(folder_path: str):
     for root, dirs, files in os.walk(folder_path):
         for file in files:
             zip_file.write(os.path.join(root, file),
-                           os.path.relpath(path = os.path.join(root, file),
-                                           start= os.path.join(".", folder_path)))
+                           os.path.relpath(path=os.path.join(root, file),
+                                           start=os.path.join(".", folder_path)))
