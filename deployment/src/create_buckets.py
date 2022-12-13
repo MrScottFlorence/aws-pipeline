@@ -22,7 +22,6 @@ class Create_resources():
             error = 'Client Error :' + ce.response['Error']['Message']
             print(error)
             self.errors.append(error)
-            raise ce
         except AttributeError as ae:
             error = "Failed to find attributes 'AWS_ACCESS_KEY' and 'AWS_SECRET_KEY' on key 'GITHUB_TOKEN'"
             print(error)
@@ -36,5 +35,11 @@ class Create_resources():
             self.errors.append(e)
             
     def create_s3_bucket(self,bucket_name:str):
-        pass
+        try : 
+            self.s3.create_bucket(Bucket=bucket_name)
+        except ClientError as ce:
+            error = 'Client Error : ' + ce.response['Error']['Message']
+            print(error)
+            self.errors.append(error)
+        
             
