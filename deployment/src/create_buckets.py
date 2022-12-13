@@ -15,11 +15,13 @@ class Create_resources():
     def create_aws_connection(self):
         """Create the s3 client, using secrets obtained from github secrets"""
         try:
-            github_secrets: dict = os.environ['GITHUB_TOKEN']
+            if 'GITHUB_TOKEN' in os.environ:
+                github_secrets: dict = os.environ['GITHUB_TOKEN']
+                os.environ['AWS_ACCESS_KEY_ID'] = github_secrets['AWS_ACCESS_KEY']
+                os.environ['AWS_SECRET_ACCESS_KEY'] = github_secrets['AWS_SECRET_KEY']
+                
             self.s3 = boto3.client('s3',
-                                   region_name='us-east-1',
-                                   aws_access_key_id=github_secrets['AWS_ACCESS_KEY'],
-                                   aws_secret_access_key=github_secrets['AWS_SECRET_KEY'])
+                                   region_name='us-east-1')
         except ClientError as ce:
             error = 'Client Error :' + ce.response['Error']['Message']
             print(error)
@@ -47,9 +49,9 @@ class Create_resources():
 
     def upload_lambda_function_code(self, folder_path: str, code_bucket: str, lambda_name: str):
         try:
-            self.zip_directory(folder_path)
+            zip_directory(folder_path)
             with open("lambda.zip", "rb") as file:
-                self.s3.upload_fileobj(file, code_bucket, lambda_name)
+                self.s3.upload_fileobj(file, code_bucket, lambda_name+".zip")
         except Exception as e:
             raise e
 
