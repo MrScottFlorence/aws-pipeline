@@ -14,7 +14,7 @@ class Deploy_lambdas():
                 os.environ['AWS_ACCESS_KEY_ID'] = github_secrets['AWS_ACCESS_KEY']
                 os.environ['AWS_SECRET_ACCESS_KEY'] = github_secrets['AWS_SECRET_KEY']
 
-            self.s3 = boto3.client('lambda',
+            self.lambda_client = boto3.client('lambda',
                                    region_name='us-east-1')
         except ClientError as ce:
             error = 'Client Error :' + ce.response['Error']['Message']
@@ -32,3 +32,14 @@ class Deploy_lambdas():
             print(e)
             self.errors.append(e)
     
+    def create_lambda(self,lambda_name:str,code_bucket:str,zip_file:str,role_arn:str):
+        response = self.lambda_client.create_function(
+                FunctionName=lambda_name,
+                Runtime='python3.9',
+                Role=role_arn,
+                Code={
+                    'S3Bucket': code_bucket,
+                    'S3Key': zip_file
+                }
+        )
+        print(response)
