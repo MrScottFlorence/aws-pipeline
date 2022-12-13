@@ -1,8 +1,10 @@
-from deployment.src.create_buckets import Create_resources
+from deployment.src.create_buckets import Create_resources,zip_directory
 from moto import mock_s3
 import pytest
 from unittest.mock import patch
 from botocore.exceptions import ClientError
+import os
+import zipfile
 
 
 @patch('deployment.src.create_buckets.os')
@@ -68,3 +70,12 @@ def test_buckets_not_created_and_client_error_handled_for_invalid_names(os,boto)
     creator.create_s3_bucket('test-bucket')
     result = creator.errors
     assert "Client Error : Client error content for test-bucket" in result
+
+
+def test_directory_zipped_for_lambda_use():
+    zip_directory('deployment/__tests__/test_data/lambda1')
+    assert os.path.exists("lambda.zip")
+    with zipfile.ZipFile("lambda.zip","r") as archive:
+        files = archive.namelist()
+    for file in files:
+        assert file in ['main.py','src/controller.py','src/method.py']
