@@ -48,6 +48,7 @@ class Create_resources():
             self.errors.append(error)
 
     def upload_lambda_function_code(self, folder_path: str, code_bucket: str, lambda_name: str):
+        """Using a folder path, lambda name, and destination code bucket, zip the lambda into an archive and upload it to aws s3 bucket"""
         try:
             zip_directory(folder_path)
             with open("lambda.zip", "rb") as file:
