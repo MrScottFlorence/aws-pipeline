@@ -52,6 +52,8 @@ class Create_resources():
             zip_directory(folder_path)
             with open("lambda.zip", "rb") as file:
                 self.s3.upload_fileobj(file, code_bucket, lambda_name+".zip")
+        except ClientError as nb:
+            print(f"Bucket does not exist. Upload of {lambda_name} to {code_bucket} failed")
         except Exception as e:
             raise e
 

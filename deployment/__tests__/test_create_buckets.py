@@ -100,5 +100,11 @@ def test_upload_lambda_function_code_zips_appropriate_file_and_uploads_to_approp
     creator.create_s3_bucket("code_bucket")
     creator.upload_lambda_function_code("deployment/__tests__/test_data/lambda1","code_bucket","lambda1")
     files = creator.s3.list_objects_v2(Bucket="code_bucket")
-    print(files)
     assert "lambda1.zip" in [file['Key'] for file in files['Contents']]
+
+def test_upload_lambda_function_states_error_when_no_valid_bucket_exists(capsys):
+    creator = Create_resources()
+    creator.upload_lambda_function_code("deployment/__tests__/test_data/lambda1","code_bucket","lambda1")
+    prints, err = capsys.readouterr()
+    assert prints == 'Bucket does not exist. Upload of lambda1 to code_bucket failed\n'
+    
