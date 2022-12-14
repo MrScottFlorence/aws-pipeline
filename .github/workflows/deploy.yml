@@ -1,0 +1,36 @@
+Name: deploy-aws-pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create-buckets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute python script to create buckets on the s3 aws server
+        uses: actions/setup-python@v4
+          with:python-version:'3.9'
+        run: |
+          echo 'Creating buckets'
+          python deployment/run_bucket_creation.py
+  create-lambdas:
+    runs-on: ubuntu-latest
+    needs: create-buckets
+    steps:
+      - name: Run tests to ensure lambdas pass
+        run: |
+          FAILCOUNT=$(PYTHONPATH=$(pwd) pytest | grep failed -i | wc -l)
+          echo lambdas failed $FAILCOUT times
+      - name: Use the uploaded lambda zip archives to populate the lambda functions
+        uses: actions/setup-python@v4
+          with:python-version:'3.9'
+        run: |
+          if [ $FAILCOUNT -le 0 ]; then
+            echo 'Assigning lambdas roles and functions'
+            python deployment/run_lambda_creation.py
+          else 
+            echo "Lambdas not assigned due to errors";
+            PYTHONPATH=$(pwd) pytest -v | grep FAILED
+          fi
