@@ -67,7 +67,7 @@ def test_create_cloudwatch_logging_policy_creates_logging_policy_for_passed_lamb
 @mock_iam
 def test_create_s3_ingest_read_policy_creates_a_policy_for_passed_lambda_to_read_the_passed_bucket():
     permissions = Assign_iam()
-    result = permissions.create_s3_ingest_read_policy("test-lambda","test-bucket")
+    result = permissions.create_s3_read_write_policy("test-lambda","test-bucket")
     assert result['Policy']['PolicyName'] == 's3-read-bucket-test-lambda'
     assert 'Arn' in result['Policy']
     assert result['ResponseMetadata']['HTTPStatusCode'] == 200
@@ -75,7 +75,7 @@ def test_create_s3_ingest_read_policy_creates_a_policy_for_passed_lambda_to_read
 @mock_iam
 def test_attach_custom_policy_adds_the_policy_to_the_appropriate_role():
     permissions = Assign_iam()
-    result = permissions.create_s3_ingest_read_policy("test-lambda","test-bucket")
+    result = permissions.create_s3_read_write_policy("test-lambda","test-bucket")
     permissions.create_lambda_role(role_name='test-role')
     result = permissions.attach_custom_policy(role_name='test-role',policy='s3-read-bucket-test-lambda')
     print(result)

@@ -47,6 +47,7 @@ class Assign_iam():
         return response
     
     def attach_custom_policy(self, role_name:str,policy:str):
+        """Attaches the past policy by name to the passed role"""
         if not policy in self.policy_arns:
             print(f'Failed to attach {policy} to {role_name} - policy arn not found in {self.policy_arns}')
             return ""
@@ -65,7 +66,7 @@ class Assign_iam():
         )
         return response
     def create_cloudwatch_logging_policy(self, lambda_name:str):
-        """, and saves the arn on a key of the name in policies"""
+        """Creates a cloudwatch policy for having access to the lambda's logger, and saves the arn on a key of the name in policies"""
         response = self.iam.create_policy(
             PolicyName=f'cloudwatch-policy-{lambda_name}',
             PolicyDocument=create_cloudwatch_policy_json(lambda_name),
@@ -74,34 +75,19 @@ class Assign_iam():
         self.policy_arns[f'cloudwatch-policy-{lambda_name}'] = response['Policy']['Arn']
         return response
     
-    def create_s3_ingest_read_policy(self, lambda_name:str, ingest_bucket:str):
-        """, and saves the arn on a key of the name in policies"""
+    def create_s3_read_write_policy(self, lambda_name:str, bucket:str,read:bool=True,write:bool=False):
+        """Creates a policy for reading, and/or writing from the given bucket, and saves the arn on a key of the name in policies"""
+        name_modifier = "read" if not write else "read-write"
+            
         response = self.iam.create_policy(
-            PolicyName=f's3-read-bucket-{lambda_name}',
-            PolicyDocument=create_s3_access_policy_json(ingest_bucket,list=True, get=True),
+            PolicyName=f's3-{name_modifier}-bucket-{lambda_name}',
+            PolicyDocument=create_s3_access_policy_json(bucket,list=read, get=read,put=write),
             Description=f'Read the ingest bucket policy policy for {lambda_name}'
         )
         self.policy_arns[f's3-read-bucket-{lambda_name}'] = response['Policy']['Arn']
         return response
-
-    def create_policies(self,lambda_name:str,ingest_bucket:str,processed_bucket:str):
-        #s3 access policy
-        #lambda execution policy
-        #cloudwatch policy
-        #store policy details to class
-        pass
     
-    def create_roles(self):
-        #Execution role
-            #Attach ingest bucket for getting source
-            #Attach processed bucket for saving output
-        pass
-    def give_lambda_log_permissions(self, log_arn:str):
-        pass
-    def give_lambda_s3_bucket_permissions(self,bucket_name:str):
-        pass
-    def give_lambda_invoke_permissions(self,lambda_name:str):
-        pass
+
 
 def create_cloudwatch_policy_json(lambda_name:str):
     cloudwatch_log_policy = { 
