@@ -5,6 +5,8 @@ import json
 
 class Assign_iam():
     aws_lambda_execution_policy = 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+    role_arns = {}
+    policy_arns = {}
     def __init__(self):
         self.create_aws_connection()
         
@@ -35,13 +37,26 @@ class Assign_iam():
             self.errors.append(e)
 
     def create_lambda_role(self,role_name:str):
-        """Sets up role of passed name, with the ability of a lambda function to assume said role"""
+        """Sets up role of passed name, with the ability of a lambda function to assume said role, and saves the arn on a key of the name in roles"""
         lambda_role_document = '{"Version": "2012-10-17","Statement": [{ "Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"},"Action": "sts:AssumeRole"}]}'
         response = self.iam.create_role(
             RoleName=role_name,
             AssumeRolePolicyDocument = lambda_role_document
         )
+        self.role_arns[role_name] = response['Role']['Arn']
         return response
+    
+    def attach_custom_policy(self, role_name:str,policy:str):
+        if not policy in self.policy_arns:
+            print(f'Failed to attach {policy} to {role_name} - policy arn not found in {self.policy_arns}')
+            return ""
+        arn = self.policy_arns[policy]
+        response = self.iam.attach_role_policy(
+                RoleName=role_name,
+                PolicyArn=arn
+            )
+        return response
+
     def attach_execution_role(self,role_name:str):
         """Attaches the AWS lambda execution policy to the passed role"""
         response = self.iam.attach_role_policy(
@@ -50,19 +65,24 @@ class Assign_iam():
         )
         return response
     def create_cloudwatch_logging_policy(self, lambda_name:str):
-        cloudwatch_policy_response = self.iam.create_policy(
+        """, and saves the arn on a key of the name in policies"""
+        response = self.iam.create_policy(
             PolicyName=f'cloudwatch-policy-{lambda_name}',
             PolicyDocument=create_cloudwatch_policy_json(lambda_name),
             Description=f'Cloudwatch policy for {lambda_name}'
         )
-        return cloudwatch_policy_response
+        self.policy_arns[f'cloudwatch-policy-{lambda_name}'] = response['Policy']['Arn']
+        return response
+    
     def create_s3_ingest_read_policy(self, lambda_name:str, ingest_bucket:str):
-        s3_ingest_read_access_response = self.iam.create_policy(
+        """, and saves the arn on a key of the name in policies"""
+        response = self.iam.create_policy(
             PolicyName=f's3-read-bucket-{lambda_name}',
             PolicyDocument=create_s3_access_policy_json(ingest_bucket,list=True, get=True),
             Description=f'Read the ingest bucket policy policy for {lambda_name}'
         )
-        return s3_ingest_read_access_response
+        self.policy_arns[f's3-read-bucket-{lambda_name}'] = response['Policy']['Arn']
+        return response
 
     def create_policies(self,lambda_name:str,ingest_bucket:str,processed_bucket:str):
         #s3 access policy
