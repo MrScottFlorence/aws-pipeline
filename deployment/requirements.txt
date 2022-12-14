@@ -1,2 +1,5 @@
+boto3
 pytest
-moto[all]
+moto[s3]
+moto[lambda]
+moto[iam]
