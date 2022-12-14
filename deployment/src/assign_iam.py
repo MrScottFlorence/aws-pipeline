@@ -80,11 +80,11 @@ class Assign_iam():
         name_modifier = "read" if not write else "read-write"
             
         response = self.iam.create_policy(
-            PolicyName=f's3-{name_modifier}-bucket-{lambda_name}',
+            PolicyName=f's3-{name_modifier}-{bucket}-{lambda_name}',
             PolicyDocument=create_s3_access_policy_json(bucket,list=read, get=read,put=write),
             Description=f'Read the ingest bucket policy policy for {lambda_name}'
         )
-        self.policy_arns[f's3-read-bucket-{lambda_name}'] = response['Policy']['Arn']
+        self.policy_arns[f's3-{name_modifier}-{bucket}-{lambda_name}'] = response['Policy']['Arn']
         return response
     
 
