@@ -22,12 +22,12 @@ jobs:
         run: |
           echo 'Creating buckets'
           python deployment/run_bucket_creation.py
-      - name: Initial test run
-        run : python -m pytest --import-mode=append
-      - name: Run tests to ensure lambdas pass
-        run: |
-          FAILCOUNT=$(PYTHONPATH=$(pwd) pytest | grep failed -i | wc -l)
-          echo lambdas failed $FAILCOUT times
+      # - name: Initial test run
+      #   run : python -m pytest --import-mode=append
+      # - name: Run tests to ensure lambdas pass
+      #   run: |
+      #     FAILCOUNT=$(PYTHONPATH=$(pwd) pytest | grep failed -i | wc -l)
+      #     echo lambdas failed $FAILCOUT times
       - name: Use the uploaded lambda zip archives to populate the lambda functions
         run: |
           # if [ $FAILCOUNT -le 0 ]; then
