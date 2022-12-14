@@ -42,4 +42,4 @@ class Deploy_lambdas():
                     'S3Key': zip_file
                 }
         )
-        print(response)
+        return response
