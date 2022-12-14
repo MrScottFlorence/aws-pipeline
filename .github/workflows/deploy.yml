@@ -10,8 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Execute python script to create buckets on the s3 aws server
-        uses: actions/setup-python@v4
-          with:python-version:'3.9'
+        uses: actions.checkout@v3
+        uses: actions/setup-python@v4.3.1
+          with: python-version:'3.9'
         run: |
           echo 'Creating buckets'
           python deployment/run_bucket_creation.py
@@ -24,8 +25,9 @@ jobs:
           FAILCOUNT=$(PYTHONPATH=$(pwd) pytest | grep failed -i | wc -l)
           echo lambdas failed $FAILCOUT times
       - name: Use the uploaded lambda zip archives to populate the lambda functions
-        uses: actions/setup-python@v4
-          with:python-version:'3.9'
+        uses: actions.checkout@v3
+        uses: actions/setup-python@v4.3.1
+          with: python-version:'3.9'
         run: |
           if [ $FAILCOUNT -le 0 ]; then
             echo 'Assigning lambdas roles and functions'
