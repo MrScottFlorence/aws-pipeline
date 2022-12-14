@@ -49,17 +49,22 @@ class Assign_iam():
             PolicyArn='arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
         )
         return response
-    def create_policies(self,lambda_name:str,ingest_bucket:str,processed_bucket:str):
-        cloudwatch_policy_response = self.iam.create_policy(
+    def create_cloudwatch_logging_policy(self, lambda_name:str):
+        response = cloudwatch_policy_response = self.iam.create_policy(
             PolicyName=f'cloudwatch_policy-{lambda_name}',
             PolicyDocument=create_cloudwatch_policy_json(lambda_name),
             Description=f'Cloudwatch policy for {lambda_name}'
         )
-        s3_ingest_read_access_response = self.iam.create_policy(
+        return response
+    def create_s3_ingest_read_policy(self, lambda_name:str, ingest_bucket:str):
+        response = s3_ingest_read_access_response = self.iam.create_policy(
             PolicyName=f's3-read-bucket-{lambda_name}',
             PolicyDocument=create_s3_access_policy_json(ingest_bucket,list=True, get=True),
             Description=f'Read the ingest bucket policy policy for {lambda_name}'
         )
+        return response
+
+    def create_policies(self,lambda_name:str,ingest_bucket:str,processed_bucket:str):
         #s3 access policy
         #lambda execution policy
         #cloudwatch policy
