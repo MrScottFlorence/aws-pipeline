@@ -36,7 +36,7 @@ class Assign_iam():
 
     def create_lambda_role(self,role_name:str):
         """Sets up role of passed name, with the ability of a lambda function to assume said role"""
-        lambda_role_document = '{"Version": "2022-12-14","Statement": [{ "Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"},"Action": "sts:AssumeRole"}]}'
+        lambda_role_document = '{"Version": "2012-10-17","Statement": [{ "Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"},"Action": "sts:AssumeRole"}]}'
         response = self.iam.create_role(
             RoleName=role_name,
             AssumeRolePolicyDocument = lambda_role_document
@@ -50,19 +50,19 @@ class Assign_iam():
         )
         return response
     def create_cloudwatch_logging_policy(self, lambda_name:str):
-        response = cloudwatch_policy_response = self.iam.create_policy(
-            PolicyName=f'cloudwatch_policy-{lambda_name}',
+        cloudwatch_policy_response = self.iam.create_policy(
+            PolicyName=f'cloudwatch-policy-{lambda_name}',
             PolicyDocument=create_cloudwatch_policy_json(lambda_name),
             Description=f'Cloudwatch policy for {lambda_name}'
         )
-        return response
+        return cloudwatch_policy_response
     def create_s3_ingest_read_policy(self, lambda_name:str, ingest_bucket:str):
-        response = s3_ingest_read_access_response = self.iam.create_policy(
+        s3_ingest_read_access_response = self.iam.create_policy(
             PolicyName=f's3-read-bucket-{lambda_name}',
             PolicyDocument=create_s3_access_policy_json(ingest_bucket,list=True, get=True),
             Description=f'Read the ingest bucket policy policy for {lambda_name}'
         )
-        return response
+        return s3_ingest_read_access_response
 
     def create_policies(self,lambda_name:str,ingest_bucket:str,processed_bucket:str):
         #s3 access policy
@@ -85,15 +85,17 @@ class Assign_iam():
 
 def create_cloudwatch_policy_json(lambda_name:str):
     cloudwatch_log_policy = { 
-        "Version": "2022-12-14",
+        "Version": "2012-10-17",
         "Statement": [ 
-                {"Effect": "Allow",
-                 "Action": "logs:CreateLogGroup", 
-                 "Resource": "arn:aws:logs:us-east-1::*" 
+                {
+                    "Effect": "Allow",
+                    "Action": "logs:CreateLogGroup", 
+                    "Resource": "arn:aws:logs:us-east-1::*" 
                 }, 
-                {"Effect": "Allow",
-                 "Action": [ "logs:CreateLogStream", "logs:PutLogEvents" ], 
-                 "Resource": f"arn:aws:logs:us-east-1::log-group:/aws/lambda/{lambda_name}:*" 
+                {
+                    "Effect": "Allow",
+                    "Action": [ "logs:CreateLogStream", "logs:PutLogEvents" ], 
+                    "Resource": f"arn:aws:logs:us-east-1::log-group:/aws/lambda/{lambda_name}:*" 
                 } 
             ] 
         }
@@ -102,7 +104,7 @@ def create_cloudwatch_policy_json(lambda_name:str):
 def create_s3_access_policy_json(bucket:str,list:bool=False,get:bool=False,put:bool=False):
     """Creates a policy document for access to a given bucket, and only the required action permissions"""
     policy_document = {
-        "Version": "2022-12-14",
+        "Version": "2012-10-17",
         "Statement": []
     }
     if list :
