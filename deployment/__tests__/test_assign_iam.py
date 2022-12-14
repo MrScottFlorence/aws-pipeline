@@ -20,3 +20,18 @@ def test_create_cloudwatch_policy_json_returns_string_of_appropriate_format_with
     expected = '{"Version": "2022-12-14", "Statement": [{"Effect": "Allow", "Action": "logs:CreateLogGroup", "Resource": "arn:aws:logs:us-east-1::*"}, {"Effect": "Allow", "Action": ["logs:CreateLogStream", "logs:PutLogEvents"], "Resource": "arn:aws:logs:us-east-1::log-group:/aws/lambda/testlambda:*"}]}'
     result = create_cloudwatch_policy_json('testlambda')
     assert result == expected
+
+@mock_iam
+def test_create_role_of_passed_name():
+    
+    permissions = Assign_iam()
+    result = permissions.create_lambda_role("test_role")
+    assert "Arn" in result['Role']
+    assert result['Role']['AssumeRolePolicyDocument'] == {'Statement': [{'Action': 'sts:AssumeRole', 'Effect': 'Allow', 'Principal': {'Service': 'lambda.amazonaws.com'}}], 'Version': '2022-12-14'}
+
+@mock_iam
+def test_attach_execution_policy_to_role_of_passed_name():    
+    permissions = Assign_iam()
+    permissions.create_lambda_role("test_role")
+    result = permissions.attach_execution_role("test_role")
+    assert result['ResponseMetadata']['HTTPStatusCode'] == 200

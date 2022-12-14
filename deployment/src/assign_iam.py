@@ -4,7 +4,7 @@ from botocore.exceptions import ClientError
 import json
 
 class Assign_iam():
-    
+    aws_lambda_execution_policy = 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
     def __init__(self):
         self.create_aws_connection()
         
@@ -33,8 +33,33 @@ class Assign_iam():
         except Exception as e:
             print(e)
             self.errors.append(e)
-    
-    def create_policies(self):
+
+    def create_lambda_role(self,role_name:str):
+        """Sets up role of passed name, with the ability of a lambda function to assume said role"""
+        lambda_role_document = '{"Version": "2022-12-14","Statement": [{ "Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"},"Action": "sts:AssumeRole"}]}'
+        response = self.iam.create_role(
+            RoleName=role_name,
+            AssumeRolePolicyDocument = lambda_role_document
+        )
+        return response
+    def attach_execution_role(self,role_name:str):
+        """Attaches the AWS lambda execution policy to the passed role"""
+        response = self.iam.attach_role_policy(
+            RoleName=role_name,
+            PolicyArn='arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        )
+        return response
+    def create_policies(self,lambda_name:str):
+        cloudwatch_policy_response = self.iam.create_policy(
+            PolicyName=f'cloudwatch_policy-{lambda_name}',
+            PolicyDocument=create_cloudwatch_policy_json(lambda_name),
+            Description=f'Cloudwatch policy for {lambda_name}'
+        )
+        s3_ingest_access_response = self.iam.create_policy(
+            PolicyName=f'cloudwatch_policy-{lambda_name}',
+            PolicyDocument=create_s3_access_policy_json(lambda_name,ingest_bucket),
+            Description=f'Cloudwatch policy for {lambda_name}'
+        )
         #s3 access policy
         #lambda execution policy
         #cloudwatch policy
@@ -68,3 +93,43 @@ def create_cloudwatch_policy_json(lambda_name:str):
             ] 
         }
     return json.dumps(cloudwatch_log_policy)
+
+def create_s3_access_policy_json(lambda_name:str,bucket:str,list:bool=False,get:bool=False,put:bool=False):
+    """Creates a policy document for access to a given bucket, and only the required action permissions"""
+    policy_document = {
+        "Version": "2022-12-14",
+        "Statement": []
+    }
+    if list :
+        policy_document["statement"].append({
+                "Effect": "Allow",
+                "Action": [
+                    "s3:ListBucket"
+                ],
+                "Resource": [
+                    f"arn:aws:s3:::{bucket}"
+                ]
+            })
+    if get : 
+        policy_document["statement"].append(
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "s3:GetObject"
+                ],
+                "Resource": [
+                    f"arn:aws:s3:::{bucket}/*"
+                ]
+            })
+    if put : 
+        policy_document["statement"].append(
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "s3:PutObject"
+                ],
+                "Resource": [
+                    f"arn:aws:s3:::{bucket}/*"
+                ]
+            })
+    return policy_document
