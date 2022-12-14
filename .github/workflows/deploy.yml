@@ -15,8 +15,9 @@ jobs:
       - name: install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r deployment/requirements.txt
-          pip install -e .
+          pip install boto3 requests pyjwt
+          # -r deployment/requirements.txt
+          # pip install -e .
       - name: Execute python script to create buckets on the s3 aws server
         run: |
           echo 'Creating buckets'
