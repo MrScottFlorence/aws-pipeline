@@ -49,16 +49,16 @@ class Assign_iam():
             PolicyArn='arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
         )
         return response
-    def create_policies(self,lambda_name:str):
+    def create_policies(self,lambda_name:str,ingest_bucket:str,processed_bucket:str):
         cloudwatch_policy_response = self.iam.create_policy(
             PolicyName=f'cloudwatch_policy-{lambda_name}',
             PolicyDocument=create_cloudwatch_policy_json(lambda_name),
             Description=f'Cloudwatch policy for {lambda_name}'
         )
-        s3_ingest_access_response = self.iam.create_policy(
-            PolicyName=f'cloudwatch_policy-{lambda_name}',
-            PolicyDocument=create_s3_access_policy_json(lambda_name,ingest_bucket),
-            Description=f'Cloudwatch policy for {lambda_name}'
+        s3_ingest_read_access_response = self.iam.create_policy(
+            PolicyName=f's3-read-bucket-{lambda_name}',
+            PolicyDocument=create_s3_access_policy_json(ingest_bucket,list=True, get=True),
+            Description=f'Read the ingest bucket policy policy for {lambda_name}'
         )
         #s3 access policy
         #lambda execution policy
@@ -94,14 +94,14 @@ def create_cloudwatch_policy_json(lambda_name:str):
         }
     return json.dumps(cloudwatch_log_policy)
 
-def create_s3_access_policy_json(lambda_name:str,bucket:str,list:bool=False,get:bool=False,put:bool=False):
+def create_s3_access_policy_json(bucket:str,list:bool=False,get:bool=False,put:bool=False):
     """Creates a policy document for access to a given bucket, and only the required action permissions"""
     policy_document = {
         "Version": "2022-12-14",
         "Statement": []
     }
     if list :
-        policy_document["statement"].append({
+        policy_document["Statement"].append({
                 "Effect": "Allow",
                 "Action": [
                     "s3:ListBucket"
@@ -111,7 +111,7 @@ def create_s3_access_policy_json(lambda_name:str,bucket:str,list:bool=False,get:
                 ]
             })
     if get : 
-        policy_document["statement"].append(
+        policy_document["Statement"].append(
             {
                 "Effect": "Allow",
                 "Action": [
@@ -122,7 +122,7 @@ def create_s3_access_policy_json(lambda_name:str,bucket:str,list:bool=False,get:
                 ]
             })
     if put : 
-        policy_document["statement"].append(
+        policy_document["Statement"].append(
             {
                 "Effect": "Allow",
                 "Action": [
@@ -132,4 +132,4 @@ def create_s3_access_policy_json(lambda_name:str,bucket:str,list:bool=False,get:
                     f"arn:aws:s3:::{bucket}/*"
                 ]
             })
-    return policy_document
+    return json.dumps(policy_document)
