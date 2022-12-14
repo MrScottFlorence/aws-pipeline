@@ -1,2 +1,2 @@
 pytest
-'moto[all]'
+moto[all]
