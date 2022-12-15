@@ -3,6 +3,7 @@ import boto3
 from botocore.exceptions import ClientError
 
 class Deploy_lambdas():
+    lambda_arns = {}
     def __init__(self):
         self.create_aws_connection()
     
@@ -42,4 +43,5 @@ class Deploy_lambdas():
                     'S3Key': zip_file
                 }
         )
+        self.lambda_arns[lambda_name] = response['FunctionArn']
         return response
