@@ -43,12 +43,16 @@ def deploy_lambdas():
     create = Create_resources()
 
     print("Assigning triggers to ingest bucket")
+    print("1")
     create.assign_bucket_update_event_triggers(
         bucket_name=ingest_bucket_name, lambda_arn=deploy.lambda_arns[process_payments_lambda_name], bucket_folders=['TableName/'])
+    print("2")
     create.assign_bucket_update_event_triggers(
         bucket_name=ingest_bucket_name, lambda_arn=deploy.lambda_arns[process_purchases_lambda_name], bucket_folders=['TableName/'])
+    print("3")
     create.assign_bucket_update_event_triggers(
         bucket_name=ingest_bucket_name, lambda_arn=deploy.lambda_arns[process_sales_lambda_name], bucket_folders=['TableName/'])
+    print("4")
     create.assign_bucket_update_event_triggers(
         bucket_name=processed_bucket_name, lambda_arn=deploy.lambda_arns[upload_lambda_name], bucket_folders=[''])
     print("Creating scheduled trigger")
@@ -56,7 +60,7 @@ def deploy_lambdas():
     event.create_schedule_event(f'schedule-event-{ingest_lambda_name}', '5')
     lambda_arn = deploy.lambda_arns[ingest_lambda_name]
     event.assign_event_target(
-        schedule_name='schedule-event-{ingest_lambda_name}', target_arn=lambda_arn)
+        schedule_name=f'schedule-event-{ingest_lambda_name}', target_arn=lambda_arn)
 
 
 def create_lambdas(permit: Assign_iam, deploy: Deploy_lambdas, lambda_name, role_name):
