@@ -1,5 +1,5 @@
 from deployment.src.deploy_lambdas import Deploy_lambdas
-from deployment.src.create_buckets import Create_resources
+from deployment.src.create_buckets import Create_resources, zip_directory
 from deployment.src.assign_iam import Assign_iam
 from moto import mock_s3, mock_iam, mock_lambda, mock_logs
 import boto3
@@ -145,7 +145,6 @@ def test_assign_bucket_update_event_triggers_runs_associated_lambda_when_bucket_
         bucket_name='ingest-bucket',
         lambda_arn=deploy.lambda_arns['customLambda'],
         bucket_folder="folder")
-    print("Triggers : ",response)
     with open("deployment/__tests__/test_data/lambda2/main.py", "rb") as file:
         create.s3.upload_fileobj(file, 'ingest-bucket','folder/new_file.py')
     log_group = '/aws/lambda/customLambda'
