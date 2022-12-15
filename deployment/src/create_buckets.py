@@ -49,7 +49,7 @@ class Create_resources():
             print(error)
             self.errors.append(error)
 
-    def assign_bucket_update_event_triggers(self, bucket_name: str, lambda_arn: str, bucket_folder: str):
+    def assign_bucket_update_event_triggers(self, bucket_name: str, lambda_arn: str, bucket_folders: list):
         """Trigger the appropriate lambda function when a bucket folder has new files added"""
         notification_config = {
             'LambdaFunctionConfigurations': [
@@ -58,17 +58,19 @@ class Create_resources():
                     'Events': ['s3:ObjectCreated:*'],
                     'Filter': {
                         'Key': {
-                            'FilterRules': [
-                                {
-                                    'Name': 'prefix',
-                                    'Value': bucket_folder
-                                }
-                            ]
+                            'FilterRules': []
                         }
                     }
                 }
             ]
         }
+        for folder in bucket_folders:
+            notification_config['LambdaFunctionConfigurations'][0]['Filter']['Key']['FilterRules'].append(
+                    {
+                        'Name': 'prefix',
+                        'Value': folder
+                    }
+                )
         try:
             response = self.s3.put_bucket_notification_configuration(
                 Bucket=bucket_name,

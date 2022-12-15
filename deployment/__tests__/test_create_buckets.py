@@ -152,7 +152,7 @@ def test_assign_bucket_update_event_triggers_runs_associated_lambda_when_bucket_
     response = create.assign_bucket_update_event_triggers(
         bucket_name='ingest-bucket',
         lambda_arn=deploy.lambda_arns['customLambda'],
-        bucket_folder="folder")
+        bucket_folders=["folder"])
     with open("deployment/__tests__/test_data/lambda2/main.py", "rb") as file:
         create.s3.upload_fileobj(file, 'ingest-bucket','folder/new_file.py')
     log_group = '/aws/lambda/customLambda'
