@@ -1,4 +1,4 @@
-from src.create_buckets import Create_resources
+from deployment.src.create_buckets import Create_resources
 
 
 def create_buckets():
