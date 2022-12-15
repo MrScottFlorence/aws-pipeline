@@ -48,6 +48,7 @@ class Create_resources():
             self.errors.append(error)
 
     def assign_bucket_update_event_triggers(self, bucket_name: str, lambda_name: str, bucket_folder: str):
+        """Trigger the appropriate lambda function when a bucket folder has new files added"""
         notification_config = {
             'LambdaFunctionConfigurations' : [
                 {
@@ -62,10 +63,16 @@ class Create_resources():
                 }
             ]
         }
-        response = self.s3.put_bucket_notification_configuration(
-            Bucket=bucket_name,
-            NotificationConfiguration = notification_config
-        )
+        try:
+            response = self.s3.put_bucket_notification_configuration(
+                Bucket=bucket_name,
+                NotificationConfiguration = notification_config
+            )
+        except ClientError as ce:
+            error = 'Client Error : ' + ce.response['Error']['Message']
+            print(error)
+            self.errors.append(error)
+        return response
 
     def upload_lambda_function_code(self, folder_path: str, code_bucket: str, lambda_name: str):
         """Using a folder path, lambda name, and destination code bucket, zip the lambda into an archive and upload it to aws s3 bucket"""
