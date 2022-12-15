@@ -4,15 +4,16 @@ from botocore.exceptions import ClientError
 from botocore.config import Config
 
 
-class Create_resources():
+class Create_events():
     errors = []
+    event_arns = {}
 
     def __init__(self):
         """Initialise the create resources class with the s3 connection started"""
         self.create_aws_connection()
 
     def create_aws_connection(self):
-        """Create the s3 client, using secrets obtained from github secrets"""
+        """Create the events client, using secrets obtained from github secrets"""
         try:
             if 'GITHUB_TOKEN' in os.environ:
                 github_secrets: dict = os.environ['GITHUB_TOKEN']
@@ -45,15 +46,17 @@ class Create_resources():
                 ScheduleExpression=f'rate({minute_count} {period})',
                 State='ENABLED' if state else "DISABLED"
             )
+            self.event_arns[schedule_name] = response['RuleArn']
             return response
-        except ClientError as ce:
+        except TypeError as ce:
             error = 'Client Error : ' + ce.response['Error']['Message']
             print(error)
             self.errors.append(error)
 
-    def assign_event_taget(self, schedule_name: str, target_arn: str):
+    def assign_event_target(self, schedule_name: str, target_arn: str):
+        """For the passed in lambda arn, assign a rule to the lambda"""
         try:
-            response = self.events.put_rule(
+            response = self.events.put_targets(
                 Rule=schedule_name,
                 Targets=[
                     {
