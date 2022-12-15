@@ -3,7 +3,7 @@ import boto3
 from botocore.exceptions import ClientError
 from botocore.config import Config
 import zipfile
-#Pandas import only for obtaining pandas install location
+# Pandas import only for obtaining pandas install location
 import pandas
 
 
@@ -52,7 +52,7 @@ class Create_resources():
     def assign_bucket_update_event_triggers(self, bucket_name: str, lambda_arn: str, bucket_folder: str):
         """Trigger the appropriate lambda function when a bucket folder has new files added"""
         notification_config = {
-            'LambdaFunctionConfigurations' : [
+            'LambdaFunctionConfigurations': [
                 {
                     'LambdaFunctionArn': lambda_arn,
                     'Events': ['s3:ObjectCreated:*'],
@@ -61,7 +61,7 @@ class Create_resources():
                             'FilterRules': [
                                 {
                                     'Name': 'prefix',
-                                    'Value' : bucket_folder
+                                    'Value': bucket_folder
                                 }
                             ]
                         }
@@ -72,7 +72,7 @@ class Create_resources():
         try:
             response = self.s3.put_bucket_notification_configuration(
                 Bucket=bucket_name,
-                NotificationConfiguration = notification_config
+                NotificationConfiguration=notification_config
             )
             return response
         except ClientError as ce:
@@ -80,10 +80,10 @@ class Create_resources():
             print(error)
             self.errors.append(error)
 
-    def upload_lambda_function_code(self, folder_path: str, code_bucket: str, lambda_name: str):
+    def upload_lambda_function_code(self, folder_path: str, code_bucket: str, lambda_name: str, pandas_dependency: bool = False):
         """Using a folder path, lambda name, and destination code bucket, zip the lambda into an archive and upload it to aws s3 bucket"""
         try:
-            zip_directory(folder_path)
+            zip_directory(folder_path, pandas_dependency)
             with open("lambda.zip", "rb") as file:
                 self.s3.upload_fileobj(file, code_bucket, lambda_name+".zip")
         except ClientError as nb:
@@ -93,20 +93,21 @@ class Create_resources():
             raise e
 
 
-def zip_directory(folder_path: str, pandas_dependency:bool = False):
+def zip_directory(folder_path: str, pandas_dependency: bool = False):
     """Create a zip file, where the contents are at the top level where they would be with respect for their folder's path"""
     zip_file = zipfile.ZipFile("lambda.zip", 'w', zipfile.ZIP_DEFLATED)
-    zip_walk(folder_path, zip_file,"")
-    
+    zip_walk(folder_path, zip_file, "")
+
     if pandas_dependency:
-        #-12 as this will always show path to pandas/__init__.py
+        # -12 as this will always show path to pandas/__init__.py
         location = pandas.__file__[:-12]
-        zip_walk(location, zip_file,"pandas/")
+        zip_walk(location, zip_file, "pandas/")
         print(f"Zipped pandas from {location}")
-    
-def zip_walk(folder_path: str, zip_file : zipfile.ZipFile,target_subfolder: str = ""):
+
+
+def zip_walk(folder_path: str, zip_file: zipfile.ZipFile, target_subfolder: str = ""):
     for root, dirs, files in os.walk(folder_path):
         for file in files:
             zip_file.write(os.path.join(root, file),
                            target_subfolder+os.path.relpath(path=os.path.join(root, file),
-                                           start=os.path.join(".", folder_path)))
+                                                            start=os.path.join(".", folder_path)))

@@ -20,18 +20,20 @@ def create_buckets():
     process_sales_lambda_name = "process_sales"
     upload_lambda_name = "upload"
     if ingest_lambda_path != "":
-        create.upload_lambda_function_code(code_bucket=code_bucket_name,folder_path=ingest_lambda_path,lambda_name=ingest_lambda_name)
+        create.upload_lambda_function_code(
+            code_bucket=code_bucket_name, folder_path=ingest_lambda_path, lambda_name=ingest_lambda_name)
     if process_payments_lambda_path != "":
-        create.upload_lambda_function_code(code_bucket=code_bucket_name,folder_path=process_payments_lambda_path,lambda_name=process_payments_lambda_name)
+        create.upload_lambda_function_code(code_bucket=code_bucket_name, folder_path=process_payments_lambda_path,
+                                           lambda_name=process_payments_lambda_name, pandas_dependency=True)
     if process_purchases_lambda_path != "":
-        create.upload_lambda_function_code(code_bucket=code_bucket_name,folder_path=process_purchases_lambda_path,lambda_name=process_purchases_lambda_name)
+        create.upload_lambda_function_code(code_bucket=code_bucket_name, folder_path=process_purchases_lambda_path,
+                                           lambda_name=process_purchases_lambda_name, pandas_dependency=True)
     if process_sales_lambda_path != "":
-        create.upload_lambda_function_code(code_bucket=code_bucket_name,folder_path=process_sales_lambda_path,lambda_name=process_sales_lambda_name)
+        create.upload_lambda_function_code(code_bucket=code_bucket_name, folder_path=process_sales_lambda_path,
+                                           lambda_name=process_sales_lambda_name, pandas_dependency=True)
     if warehouse_uploader_lambda_path != "":
-        create.upload_lambda_function_code(code_bucket=code_bucket_name,folder_path=warehouse_uploader_lambda_path,lambda_name=upload_lambda_name)
-    
-
-
+        create.upload_lambda_function_code(
+            code_bucket=code_bucket_name, folder_path=warehouse_uploader_lambda_path, lambda_name=upload_lambda_name)
 
 
 if __name__ == '__main__':
