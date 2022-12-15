@@ -47,6 +47,26 @@ class Create_resources():
             print(error)
             self.errors.append(error)
 
+    def assign_bucket_update_event_triggers(self, bucket_name: str, lambda_name: str, bucket_folder: str):
+        notification_config = {
+            'LambdaFunctionConfigurations' : [
+                {
+                    'LambdaFunctionArn': lambda_name,
+                    'Events': ['s3:ObjectCreated:*'],
+                    'filter': {
+                        'Key': {
+                            'Name': 'prefix',
+                            'Value' : bucket_folder
+                        }
+                    }
+                }
+            ]
+        }
+        response = self.s3.put_bucket_notification_configuration(
+            Bucket=bucket_name,
+            NotificationConfiguration = notification_config
+        )
+
     def upload_lambda_function_code(self, folder_path: str, code_bucket: str, lambda_name: str):
         """Using a folder path, lambda name, and destination code bucket, zip the lambda into an archive and upload it to aws s3 bucket"""
         try:
