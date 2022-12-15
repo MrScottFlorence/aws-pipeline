@@ -1,5 +1,8 @@
-from deployment.src.create_buckets import Create_resources, zip_directory
-from moto import mock_s3
+from deployment.src.deploy_lambdas import Deploy_lambdas
+from deployment.src.create_buckets import Create_resources
+from deployment.src.assign_iam import Assign_iam
+from moto import mock_s3, mock_iam, mock_lambda, mock_logs
+import boto3
 import pytest
 from unittest.mock import patch
 from botocore.exceptions import ClientError
@@ -120,3 +123,38 @@ def test_upload_lambda_function_states_error_when_no_valid_bucket_exists(capsys)
         "deployment/__tests__/test_data/lambda1", "code_bucket", "lambda1")
     prints, err = capsys.readouterr()
     assert prints == 'Bucket does not exist. Upload of lambda1 to code_bucket failed\n'
+
+@mock_logs
+@mock_lambda
+@mock_iam
+@mock_s3
+def test_assign_bucket_update_event_triggers_runs_associated_lambda_when_bucket_gets_files_added():
+    create = Create_resources()
+    create.create_s3_bucket("code-bucket")
+    create.create_s3_bucket("ingest-bucket")
+    create.upload_lambda_function_code(code_bucket="code-bucket",folder_path="deployment/__tests__/test_data/lambda2",lambda_name="customLambda")
+    permit = Assign_iam()
+    permit.create_lambda_role(role_name="test-role")
+    permit.attach_execution_role(role_name='test-role')
+    permit.create_cloudwatch_logging_policy(lambda_name='customLambda')
+    permit.attach_custom_policy(role_name='test-role',policy='cloudwatch-policy-customLambda')
+    deploy = Deploy_lambdas()
+    role_arn = permit.role_arns['test-role']
+    deploy.create_lambda(lambda_name="customLambda",code_bucket="code-bucket",role_arn=role_arn,zip_file="customLambda.zip")
+    response = create.assign_bucket_update_event_triggers(
+        bucket_name='ingest-bucket',
+        lambda_arn=deploy.lambda_arns['customLambda'],
+        bucket_folder="folder")
+    print("Triggers : ",response)
+    with open("deployment/__tests__/test_data/lambda2/main.py", "rb") as file:
+        create.s3.upload_fileobj(file, 'ingest-bucket','folder/new_file.py')
+    log_group = '/aws/lambda/customLambda'
+    log_client = boto3.client('logs')
+    response = log_client.describe_log_streams(
+        logGroupName=log_group
+    )
+    assert 'logStreams' in response
+    assert len(response['logStreams']) > 0
+    log_arn = response['logStreams'][0]['arn']
+    
+    
