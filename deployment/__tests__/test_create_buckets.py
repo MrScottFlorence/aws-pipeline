@@ -106,6 +106,14 @@ def test_directory_zipped_for_lambda_use_is_replaced_upon_new_zip():
     for file in files:
         assert file not in ['src/controller.py', 'src/method.py']
 
+def test_zip_directory_includes_pandas_zipped_if_dependency_exists():
+    zip_directory('deployment/__tests__/test_data/lambda1', pandas_dependency=True)
+    assert os.path.exists("lambda.zip")
+    with zipfile.ZipFile("lambda.zip", "r") as archive:
+        files = archive.namelist()
+    for file in files:
+        assert file in ['main.py', 'src/controller.py', 'src/method.py'] or file[:7] == 'pandas/'
+
 
 @mock_s3
 def test_upload_lambda_function_code_zips_appropriate_file_and_uploads_to_appropriate_bucket():

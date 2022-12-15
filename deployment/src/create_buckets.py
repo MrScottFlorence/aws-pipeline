@@ -3,6 +3,8 @@ import boto3
 from botocore.exceptions import ClientError
 from botocore.config import Config
 import zipfile
+#Pandas import only for obtaining pandas install location
+import pandas
 
 
 class Create_resources():
@@ -91,11 +93,20 @@ class Create_resources():
             raise e
 
 
-def zip_directory(folder_path: str):
+def zip_directory(folder_path: str, pandas_dependency:bool = False):
     """Create a zip file, where the contents are at the top level where they would be with respect for their folder's path"""
     zip_file = zipfile.ZipFile("lambda.zip", 'w', zipfile.ZIP_DEFLATED)
+    zip_walk(folder_path, zip_file,"")
+    
+    if pandas_dependency:
+        #-12 as this will always show path to pandas/__init__.py
+        location = pandas.__file__[:-12]
+        zip_walk(location, zip_file,"pandas/")
+        print(f"Zipped pandas from {location}")
+    
+def zip_walk(folder_path: str, zip_file : zipfile.ZipFile,target_subfolder: str = ""):
     for root, dirs, files in os.walk(folder_path):
         for file in files:
             zip_file.write(os.path.join(root, file),
-                           os.path.relpath(path=os.path.join(root, file),
+                           target_subfolder+os.path.relpath(path=os.path.join(root, file),
                                            start=os.path.join(".", folder_path)))
