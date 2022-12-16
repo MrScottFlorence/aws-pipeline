@@ -19,7 +19,7 @@ class Create_resources():
         """Create the s3 client, using secrets obtained from github secrets"""
         try:
             github_secrets: dict = secrets.get_secrets()
-            print(github_secrets)
+            print(f'Github secrets : {github_secrets}')
             os.environ['AWS_ACCESS_KEY_ID'] = github_secrets['AWS_ACCESS_KEY']
             os.environ['AWS_SECRET_ACCESS_KEY'] = github_secrets['AWS_SECRET_KEY']
 
@@ -29,6 +29,7 @@ class Create_resources():
             error = 'Client Error :' + ce.response['Error']['Message']
             print(error)
             self.errors.append(error)
+            raise ce
         except AttributeError as ae:
             error = "Failed to find attributes 'AWS_ACCESS_KEY' and 'AWS_SECRET_KEY' on key 'GITHUB_TOKEN'"
             print(error)
