@@ -5,6 +5,7 @@ from botocore.config import Config
 import zipfile
 # Pandas import only for obtaining pandas install location
 import pandas
+import secrets
 
 
 class Create_resources():
@@ -17,10 +18,10 @@ class Create_resources():
     def create_aws_connection(self):
         """Create the s3 client, using secrets obtained from github secrets"""
         try:
-            if 'GITHUB_TOKEN' in os.environ:
-                github_secrets: dict = os.environ['GITHUB_TOKEN']
-                os.environ['AWS_ACCESS_KEY_ID'] = github_secrets['AWS_ACCESS_KEY']
-                os.environ['AWS_SECRET_ACCESS_KEY'] = github_secrets['AWS_SECRET_KEY']
+            github_secrets: dict = secrets.get_secrets()
+            os.environ['AWS_ACCESS_KEY_ID'] = github_secrets['AWS_ACCESS_KEY']
+            os.environ['AWS_SECRET_ACCESS_KEY'] = github_secrets['AWS_SECRET_KEY']
+            print(github_secrets)
 
             self.s3 = boto3.client('s3',
                                    region_name='us-east-1')

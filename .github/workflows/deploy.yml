@@ -2,7 +2,7 @@ on:
   push:
     branches:
       - main
-      - deployment-update-branch
+      - deployment-credentials-branch
 
 jobs:
   create-buckets-and-lambdas:
