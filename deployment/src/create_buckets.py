@@ -19,9 +19,9 @@ class Create_resources():
         """Create the s3 client, using secrets obtained from github secrets"""
         try:
             github_secrets: dict = secrets.get_secrets()
+            print(github_secrets)
             os.environ['AWS_ACCESS_KEY_ID'] = github_secrets['AWS_ACCESS_KEY']
             os.environ['AWS_SECRET_ACCESS_KEY'] = github_secrets['AWS_SECRET_KEY']
-            print(github_secrets)
 
             self.s3 = boto3.client('s3',
                                    region_name='us-east-1')
