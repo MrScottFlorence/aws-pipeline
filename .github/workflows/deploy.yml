@@ -19,12 +19,10 @@ jobs:
           pip install pandas
           # -r deployment/requirements.txt
           # pip install -e .
-      - name: Assign secrets to environment variables
+      - name: Execute python script to create buckets on the s3 aws server
         run: |
           AWS_ACCESS_KEY_ID=${{secrets.AWS_ACCESS_KEY}}
           AWS_SECRET_ACCESS_KEY=${{secrets.AWS_SECRET_KEY}}
-      - name: Execute python script to create buckets on the s3 aws server
-        run: |
           echo 'Creating buckets'
           PYTHONPATH=$(pwd) python deployment/run_bucket_creation.py
       # - name: Initial test run
