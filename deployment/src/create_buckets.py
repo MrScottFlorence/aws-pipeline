@@ -5,7 +5,6 @@ from botocore.config import Config
 import zipfile
 # Pandas import only for obtaining pandas install location
 import pandas
-import secrets
 
 
 class Create_resources():
@@ -18,11 +17,6 @@ class Create_resources():
     def create_aws_connection(self):
         """Create the s3 client, using secrets obtained from github secrets"""
         try:
-            github_secrets: dict = secrets.get_secrets()
-            print(f'Github secrets : {github_secrets}')
-            os.environ['AWS_ACCESS_KEY_ID'] = github_secrets['AWS_ACCESS_KEY']
-            os.environ['AWS_SECRET_ACCESS_KEY'] = github_secrets['AWS_SECRET_KEY']
-
             self.s3 = boto3.client('s3',
                                    region_name='us-east-1')
         except ClientError as ce:
@@ -31,11 +25,7 @@ class Create_resources():
             self.errors.append(error)
             raise ce
         except AttributeError as ae:
-            error = "Failed to find attributes 'AWS_ACCESS_KEY' and 'AWS_SECRET_KEY' on key 'GITHUB_TOKEN'"
-            print(error)
-            self.errors.append(error)
-        except KeyError as ke:
-            error = "Failed to find keys 'AWS_ACCESS_KEY' and 'AWS_SECRET_KEY' on key 'GITHUB_TOKEN'"
+            error = "Failed to find attributes 'AWS_ACCESS_KEY_ID' and 'AWS_SECRET_ACCESS_KEY'"
             print(error)
             self.errors.append(error)
         except Exception as e:
