@@ -43,15 +43,20 @@ class Assign_iam():
                 responses = self.iam.list_roles()
                 response = {'Role':role for role in responses['Roles']}
         attempt = 0
-        while response['Role'] != role_name and attempt < 10:
+        while response['Role']['RoleName'] != role_name and attempt < 10:
             time.sleep(1)
             responses = self.iam.list_roles()
-            response = {'Role':role for role in responses['Roles']}
+            response = {'Role':role for role in responses['Roles'] if role_name == role['RoleName']}
             attempt+=1
         
         self.role_arns[role_name] = response['Role']['Arn']
         return response
-    
+    def verify_stored_arns(self):
+        return
+            
+        
+        
+        
     def attach_custom_policy(self, role_name:str,policy:str):
         """Attaches the past policy by name to the passed role"""
         if not policy in self.policy_arns:
