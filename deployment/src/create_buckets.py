@@ -61,6 +61,8 @@ class Create_resources():
                         'Value': folder
                     }
                 )
+        print(f"Applying configurations : {notification_config}")
+        print(f"For {bucket_name}")
         try:
             response = self.s3.put_bucket_notification_configuration(
                 Bucket=bucket_name,
