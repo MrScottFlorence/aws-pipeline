@@ -42,8 +42,11 @@ def deploy_lambdas():
     create_roles(permit)
     deploy = Deploy_lambdas()
     print("Creating lambda layers")
-    deploy.create_lambda_layer(layer_name="pandas-layer",zipfile="pandas.zip",description="Layer for pandas dependency")
-    deploy.create_lambda_layer(layer_name="pg8000-layer",zipfile="pg8000.zip",description="Layer for pg8000 dependency")
+    try:
+        deploy.create_lambda_layer(layer_name="pandas-layer",zipfile="pandas.zip",description="Layer for pandas dependency")
+        deploy.create_lambda_layer(layer_name="pg8000-layer",zipfile="pg8000.zip",description="Layer for pg8000 dependency")
+    except :
+        print("Failed on lambda layers")
     print("Creating ingest lambda")
     create_lambdas(permit, deploy, ingest_lambda_name, ingest_role)
     print("Creating process payments lambda")
