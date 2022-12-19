@@ -74,10 +74,10 @@ class Create_resources():
             print(error)
             self.errors.append(error)
 
-    def upload_lambda_function_code(self, folder_path: str, code_bucket: str, lambda_name: str, pandas_dependency: bool = False):
+    def upload_lambda_function_code(self, folder_path: str, code_bucket: str, lambda_name: str):
         """Using a folder path, lambda name, and destination code bucket, zip the lambda into an archive and upload it to aws s3 bucket"""
         try:
-            zip_directory(folder_path, pandas_dependency)
+            zip_directory(folder_path)
             with open("lambda.zip", "rb") as file:
                 self.s3.upload_fileobj(file, code_bucket, lambda_name+".zip")
         except ClientError as nb:
@@ -87,16 +87,10 @@ class Create_resources():
             raise e
 
 
-def zip_directory(folder_path: str, pandas_dependency: bool = False):
+def zip_directory(folder_path: str):
     """Create a zip file, where the contents are at the top level where they would be with respect for their folder's path"""
     zip_file = zipfile.ZipFile("lambda.zip", 'w', zipfile.ZIP_DEFLATED)
     zip_walk(folder_path, zip_file, "")
-
-    if pandas_dependency:
-        # -12 as this will always show path to pandas/__init__.py
-        location = pandas.__file__[:-12]
-        zip_walk(location, zip_file, "pandas/")
-        print(f"Zipped pandas from {location}")
 
 
 def zip_walk(folder_path: str, zip_file: zipfile.ZipFile, target_subfolder: str = ""):
