@@ -3,8 +3,6 @@ import boto3
 from botocore.exceptions import ClientError
 from botocore.config import Config
 import zipfile
-# Pandas import only for obtaining pandas install location
-import pandas
 
 
 class Create_resources():
