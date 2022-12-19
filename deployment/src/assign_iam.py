@@ -78,6 +78,8 @@ class Assign_iam():
                 print(f'{policy_name} policy already exists, reading from iam')
                 responses = self.iam.list_policies(Scope='Local')
                 response = {'Policy':policy for policy in responses['Policies'] if policy['PolicyName'] == policy_name}
+        except Exception as e:
+            raise e
             
         self.policy_arns[f'cloudwatch-policy-{lambda_name}'] = response['Policy']['Arn']
         return response
