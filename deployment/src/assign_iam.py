@@ -2,6 +2,7 @@ import os
 import boto3
 from botocore.exceptions import ClientError
 import json
+import time
 
 class Assign_iam():
     aws_lambda_execution_policy = 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
@@ -41,6 +42,7 @@ class Assign_iam():
                 print(f'{role_name} role already exists, reading from iam')
                 responses = self.iam.list_roles()
                 response = {'Role':role for role in responses['Roles']}
+        time.sleep(1)
         self.role_arns[role_name] = response['Role']['Arn']
         return response
     
