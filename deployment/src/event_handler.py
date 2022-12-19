@@ -46,6 +46,7 @@ class Create_events():
 
     def assign_event_target(self, schedule_name: str, target_arn: str):
         """For the passed in lambda arn, assign a rule to the lambda"""
+        print(f"Assigning for {schedule_name} and target {target_arn}")
         try:
             response = self.events.put_targets(
                 Rule=schedule_name,
