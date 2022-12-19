@@ -90,6 +90,8 @@ def deploy_lambdas():
 
 
 def create_lambdas(permit: Assign_iam, deploy: Deploy_lambdas, lambda_name:str, role_name:str, handler_method:str):
+    print(permit.role_arns)
+    print(f'Looking for {role_name}')
     deploy.create_lambda(lambda_name=lambda_name, code_bucket=code_bucket_name,
                          role_arn=permit.role_arns[role_name], zip_file=f'{lambda_name}.zip',handler_name=handler_method)
 
