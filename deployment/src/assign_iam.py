@@ -30,7 +30,7 @@ class Assign_iam():
     def create_lambda_role(self,role_name:str):
         """Sets up role of passed name, with the ability of a lambda function to assume said role, and saves the arn on a key of the name in roles"""
         response = ""
-        lambda_role_document = '{"Version": "2012-10-17","Statement": [{ "Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"},"Action": "sts:AssumeRole"}]}'
+        lambda_role_document = '{"Version": "2012-10-17","Statement": [{ "Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"},"Action": "sts:AssumeRole"},{"Effect": "Allow","Action": [ "iam:PassRole"],"Resource": ["arn:aws:iam:::*"]}]}'
         try:
             response = self.iam.create_role(
                 RoleName=role_name,
