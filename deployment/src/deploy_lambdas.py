@@ -36,3 +36,14 @@ class Deploy_lambdas():
         )
         self.lambda_arns[lambda_name] = response['FunctionArn']
         return response
+    
+    def create_lambda_layer(self,layer_name:str,zipfile:str,description:str):
+        with open(zipfile, 'rb') as file:
+            file_contents = file.read()
+            response = self.lambda_client.create_layer_version(
+                LayerName=layer_name,
+                Content={'ZipFile':file_contents},
+                CompatibleRuntimes=['python3.9'],
+                Description=description
+            )
+        return response
