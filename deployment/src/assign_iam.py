@@ -30,7 +30,7 @@ class Assign_iam():
     def create_lambda_role(self,role_name:str):
         """Sets up role of passed name, with the ability of a lambda function to assume said role, and saves the arn on a key of the name in roles"""
         response = ""
-        lambda_role_document = '{"Version": "2012-10-17","Statement": [{ "Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"},"Action": "sts:AssumeRole"},{"Effect": "Allow","Action": [ "iam:PassRole"],"Resource": ["arn:aws:iam:::*"]}]}'
+        lambda_role_document = '{"Version": "2012-10-17","Statement": [{ "Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"},"Action": "sts:AssumeRole"},{"Effect": "Allow","Action": [ "iam:PassRole"],"Resource": ["arn:aws:*:::*"]}]}'
         try:
             response = self.iam.create_role(
                 RoleName=role_name,
@@ -123,7 +123,7 @@ def create_cloudwatch_policy_json(lambda_name:str):
                     "iam:PassRole"
                 ],
                 "Resource": [
-                    "arn:aws:iam:::*"
+                    "arn:aws:*:::*"
                 ]
                 }
             ] 
@@ -140,7 +140,7 @@ def create_s3_access_policy_json(bucket:str,list:bool=False,get:bool=False,put:b
                     "iam:PassRole"
                 ],
                 "Resource": [
-                    "arn:aws:iam:::*"
+                    "arn:aws:*:::*"
                 ]
                 }
             ]
