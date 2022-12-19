@@ -18,8 +18,8 @@ jobs:
           pip install boto3
           pip install pandas
           pip install pg8000
-          PG8000DIR=$(which pg8000)
-          PANDASDIR=$(which pandas)
+          PG8000DIR=$(find -name pg8000)
+          PANDASDIR=$(find -name pandas)
           CURRENTLOC=$(pwd)
 
           echo Zipping dependencies
