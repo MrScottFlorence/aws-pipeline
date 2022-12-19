@@ -41,7 +41,7 @@ class Assign_iam():
             if ce.response['Error']['Code'] == 'EntityAlreadyExists':
                 print(f'{role_name} role already exists, reading from iam')
                 responses = self.iam.list_roles()
-                response = {'Role':role for role in responses['Roles']}
+                response = {'Role':role for role in responses['Roles'] if role_name == role['RoleName']}
         attempt = 0
         while response['Role']['RoleName'] != role_name and attempt < 10:
             time.sleep(1)

@@ -38,6 +38,11 @@ class Deploy_lambdas():
                     }
             )
             self.lambda_arns[lambda_name] = response['FunctionArn']
+        except ClientError as ce:
+            if e.response['Error']['Code'] == 'ResourceConflictException':
+                print(f'Lambda {lambda_name} already exists')
+                responses = self.lambda_client.list_functions()
+                response = {funct for funct in responses['Functions'] if lambda_name == funct['FunctionName']}
         except Exception as e:
             print(f"Error creating lambda {lambda_name} using {code_bucket} {zip_file} and role arn {role_arn}")
             print(e.response)
