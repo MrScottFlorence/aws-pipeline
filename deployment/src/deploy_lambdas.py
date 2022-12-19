@@ -39,7 +39,7 @@ class Deploy_lambdas():
             )
             self.lambda_arns[lambda_name] = response['FunctionArn']
         except ClientError as ce:
-            if e.response['Error']['Code'] == 'ResourceConflictException':
+            if ce.response['Error']['Code'] == 'ResourceConflictException':
                 print(f'Lambda {lambda_name} already exists')
                 responses = self.lambda_client.list_functions()
                 response = {funct for funct in responses['Functions'] if lambda_name == funct['FunctionName']}
