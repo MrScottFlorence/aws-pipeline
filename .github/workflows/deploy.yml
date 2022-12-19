@@ -18,17 +18,17 @@ jobs:
           pip install boto3
           pip install pandas
           pip install pg8000
-          PG8000DIR=$(find -name pg8000)
-          PANDASDIR=$(find -name pandas)
+          PG8000DIR=$(which pg8000)
+          PANDASDIR=$(which pandas)
           CURRENTLOC=$(pwd)
 
           echo Zipping dependencies
           cd $PG8000DIR
           echo Zipping from $(pwd) to $(${CURRENTLOC}/pg8000.zip)
-          zip -r9 ${CURRENTLOC}/pg8000.zip .
+          # zip -r9 ${CURRENTLOC}/pg8000.zip .
           cd $PANDASDIR
           echo Zipping from $(pwd) to $(${CURRENTLOC}/pandas.zip)
-          zip -r9 ${CURRENTLOC}/pandas.zip .
+          # zip -r9 ${CURRENTLOC}/pandas.zip .
           # -r deployment/requirements.txt
           # pip install -e .
       - name: Execute python script to create buckets on the s3 aws server

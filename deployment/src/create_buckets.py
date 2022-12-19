@@ -85,9 +85,9 @@ class Create_resources():
             raise e
 
 
-def zip_directory(folder_path: str):
+def zip_directory(folder_path: str,zip_name:str="lambda.zip"):
     """Create a zip file, where the contents are at the top level where they would be with respect for their folder's path"""
-    zip_file = zipfile.ZipFile("lambda.zip", 'w', zipfile.ZIP_DEFLATED)
+    zip_file = zipfile.ZipFile(zip_name, 'w', zipfile.ZIP_DEFLATED)
     zip_walk(folder_path, zip_file, "")
 
 

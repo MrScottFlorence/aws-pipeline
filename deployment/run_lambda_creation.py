@@ -21,7 +21,19 @@ processed_bucket_name = f'{testing_prefix}processed-bucket'
 ingest_bucket_name = f'{testing_prefix}ingest-bucket'
 code_bucket_name = f'{testing_prefix}code-bucket'
 
-
+def create_dependency_zips():
+    import pandas
+    from deployment.src.create_buckets import zip_directory
+    pandas_dir = pandas.__file__[:-7]
+    print(f'Pandas directory : {pandas_dir}')
+    import pg8000
+    pg8000_dir = pg8000.__file__[:-7]
+    print(f'pg8000 directory : {pandas_dir}')
+    zip_directory(folder_path=pandas_dir,zip_name="pandas.zip")
+    zip_directory(folder_path=pg8000_dir,zip_name="pg8000.zip")
+    
+    
+    
 def deploy_lambdas():
     permit = Assign_iam()
     print("Creating policies")
@@ -155,4 +167,5 @@ def create_policies(permit: Assign_iam):
 
 
 if __name__ == '__main__':
+    create_dependency_zips()
     deploy_lambdas()
