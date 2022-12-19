@@ -161,7 +161,7 @@ def create_policies(permit: Assign_iam):
     print("Creating warehouse policies")
     permit.create_cloudwatch_logging_policy(lambda_name=upload_lambda_name)
     permit.create_s3_read_write_policy(
-        bucket=ingest_bucket_name, lambda_name=processed_bucket_name, read=True)
+        bucket=processed_bucket_name, lambda_name=upload_lambda_name, read=True)
 
 
 if __name__ == '__main__':
