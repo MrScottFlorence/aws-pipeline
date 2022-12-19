@@ -116,15 +116,6 @@ def create_cloudwatch_policy_json(lambda_name:str):
                     "Effect": "Allow",
                     "Action": [ "logs:CreateLogStream", "logs:PutLogEvents" ], 
                     "Resource": f"arn:aws:logs:us-east-1::log-group:/aws/lambda/{lambda_name}:*" 
-                },
-                {
-                "Effect": "Allow",
-                "Action": [ 
-                    "iam:PassRole"
-                ],
-                "Resource": [
-                    "arn:aws:iam:::*"
-                ]
                 }
             ] 
         }
@@ -134,16 +125,7 @@ def create_s3_access_policy_json(bucket:str,list:bool=False,get:bool=False,put:b
     """Creates a policy document for access to a given bucket, and only the required action permissions"""
     policy_document = {
         "Version": "2012-10-17",
-        "Statement": [{
-                "Effect": "Allow",
-                "Action": [ 
-                    "iam:PassRole"
-                ],
-                "Resource": [
-                    "arn:aws:iam:::*"
-                ]
-                }
-            ]
+        "Statement": []
         }
     if list :
         policy_document["Statement"].append({
