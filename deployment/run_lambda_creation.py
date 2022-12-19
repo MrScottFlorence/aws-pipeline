@@ -114,8 +114,8 @@ def create_roles(permit: Assign_iam):
 
 
 def create_policies(permit: Assign_iam):
-    processed_bucket_name = 'processed-bucket'
-    ingest_bucket_name = 'ingest-bucket'
+    # processed_bucket_name = 'processed-bucket'
+    # ingest_bucket_name = 'ingest-bucket'
     print("Creating ingest policies")
     permit.create_cloudwatch_logging_policy(lambda_name=ingest_lambda_name)
     permit.create_s3_read_write_policy(
