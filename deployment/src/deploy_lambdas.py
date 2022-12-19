@@ -45,6 +45,7 @@ class Deploy_lambdas():
                 for funct in responses['Functions']:
                     if lambda_name == funct['FunctionName']:
                         response = funct
+                self.lambda_arns[lambda_name] = response['FunctionArn']
         except Exception as e:
             print(f"Error creating lambda {lambda_name} using {code_bucket} {zip_file} and role arn {role_arn}")
             print(e.response)
