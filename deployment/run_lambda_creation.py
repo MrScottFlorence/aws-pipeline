@@ -57,17 +57,21 @@ def deploy_lambdas():
 
     print("Assigning triggers to ingest bucket")
     print("1")
-    create.assign_bucket_update_event_triggers(
-        bucket_name=ingest_bucket_name, lambda_arn=deploy.lambda_arns[process_payments_lambda_name], bucket_folders=['TableName/'])
+    if ingest_lambda_name in deploy.lambda_arns:
+        create.assign_bucket_update_event_triggers(
+            bucket_name=ingest_bucket_name, lambda_arn=deploy.lambda_arns[ingest_lambda_name], bucket_folders=['TableName/'])
     print("2")
-    create.assign_bucket_update_event_triggers(
-        bucket_name=ingest_bucket_name, lambda_arn=deploy.lambda_arns[process_purchases_lambda_name], bucket_folders=['TableName/'])
+    if process_purchases_lambda_name in deploy.lambda_arns:
+        create.assign_bucket_update_event_triggers(
+            bucket_name=ingest_bucket_name, lambda_arn=deploy.lambda_arns[process_purchases_lambda_name], bucket_folders=['TableName/'])
     print("3")
-    create.assign_bucket_update_event_triggers(
-        bucket_name=ingest_bucket_name, lambda_arn=deploy.lambda_arns[process_sales_lambda_name], bucket_folders=['TableName/'])
+    if process_sales_lambda_name in deploy.lambda_arns:
+        create.assign_bucket_update_event_triggers(
+            bucket_name=ingest_bucket_name, lambda_arn=deploy.lambda_arns[process_sales_lambda_name], bucket_folders=['TableName/'])
     print("4")
-    create.assign_bucket_update_event_triggers(
-        bucket_name=processed_bucket_name, lambda_arn=deploy.lambda_arns[upload_lambda_name], bucket_folders=[''])
+    if upload_lambda_name in deploy.lambda_arns:
+        create.assign_bucket_update_event_triggers(
+            bucket_name=processed_bucket_name, lambda_arn=deploy.lambda_arns[upload_lambda_name], bucket_folders=[''])
     print("Creating scheduled trigger")
     event = Create_events()
     event.create_schedule_event(f'schedule-event-{ingest_lambda_name}', '5')
