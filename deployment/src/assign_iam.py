@@ -66,7 +66,6 @@ class Assign_iam():
     
     def create_cloudwatch_logging_policy(self, lambda_name:str):
         """Creates a cloudwatch policy for having access to the lambda's logger, and saves the arn on a key of the name in policies"""
-        response = ""
         policy_name = f'cloudwatch-policy-{lambda_name}'
         try:
             response = self.iam.create_policy(
