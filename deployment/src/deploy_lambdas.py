@@ -26,17 +26,21 @@ class Deploy_lambdas():
     
     def create_lambda(self,lambda_name:str,code_bucket:str,zip_file:str,role_arn:str,handler_name:str):
         print(f"Creating lambda {lambda_name} using {code_bucket} {zip_file} and role arn {role_arn}")
-        response = self.lambda_client.create_function(
-                FunctionName=lambda_name,
-                Handler=handler_name,
-                Runtime='python3.9',
-                Role=role_arn,
-                Code={
-                    'S3Bucket': code_bucket,
-                    'S3Key': zip_file
-                }
-        )
-        self.lambda_arns[lambda_name] = response['FunctionArn']
+        try:
+            response = self.lambda_client.create_function(
+                    FunctionName=lambda_name,
+                    Handler=handler_name,
+                    Runtime='python3.9',
+                    Role=role_arn,
+                    Code={
+                        'S3Bucket': code_bucket,
+                        'S3Key': zip_file
+                    }
+            )
+            self.lambda_arns[lambda_name] = response['FunctionArn']
+        except Exception as e:
+            print(f"Error creating lambda {lambda_name} using {code_bucket} {zip_file} and role arn {role_arn}")
+            raise e
         print("Created")
         return response
     
