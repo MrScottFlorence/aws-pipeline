@@ -37,6 +37,7 @@ class Deploy_lambdas():
                         'S3Key': zip_file
                     }
             )
+            print("Failed response = ",response)
             self.lambda_arns[lambda_name] = response['FunctionArn']
         except ClientError as ce:
             if ce.response['Error']['Code'] == 'ResourceConflictException':
