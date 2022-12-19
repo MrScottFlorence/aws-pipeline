@@ -43,6 +43,8 @@ class Deploy_lambdas():
                 print(f'Lambda {lambda_name} already exists')
                 responses = self.lambda_client.list_functions()
                 print(responses)
+                for funct in responses['Functions']:
+                    print(funct)
                 response = {funct for funct in responses['Functions'] if lambda_name == funct['FunctionName']}
                 print(response)
         except Exception as e:
