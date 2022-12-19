@@ -42,7 +42,13 @@ class Assign_iam():
                 print(f'{role_name} role already exists, reading from iam')
                 responses = self.iam.list_roles()
                 response = {'Role':role for role in responses['Roles']}
-        time.sleep(1)
+        attempt = 0
+        while response['Role'] != role_name and attempt < 10:
+            time.sleep(1)
+            responses = self.iam.list_roles()
+            response = {'Role':role for role in responses['Roles']}
+            attempt+=1
+        
         self.role_arns[role_name] = response['Role']['Arn']
         return response
     
