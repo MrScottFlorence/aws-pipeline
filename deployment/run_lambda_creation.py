@@ -5,6 +5,12 @@ from deployment.src.event_handler import Create_events
 
 testing_prefix = "bosch-test-run-2-"
 
+ingest_handler_name = f"my_handler"
+process_payments_handler_name = ""
+process_purchases_handler_name = ""
+process_sales_handler_name = ""
+upload_handler_name = ""
+
 ingest_lambda_name = f"{testing_prefix}ingest"
 process_payments_lambda_name = f"{testing_prefix}process_payments"
 process_purchases_lambda_name = f"{testing_prefix}process_purchases"
@@ -48,18 +54,18 @@ def deploy_lambdas():
     except :
         print("Failed on lambda layers")
     print("Creating ingest lambda")
-    create_lambdas(permit, deploy, ingest_lambda_name, ingest_role)
+    create_lambdas(permit, deploy, ingest_lambda_name, ingest_role,ingest_handler_name)
     print("Creating process payments lambda")
     create_lambdas(permit, deploy, process_payments_lambda_name,
-                   process_payments_role)
+                   process_payments_role, process_payments_handler_name)
     print("Creating process purchases lambda")
     create_lambdas(permit, deploy, process_purchases_lambda_name,
-                   process_purchases_role)
+                   process_purchases_role, process_purchases_handler_name)
     print("Creating process sales lambda")
     create_lambdas(permit, deploy, process_sales_lambda_name,
-                   process_sales_role)
+                   process_sales_role, process_sales_handler_name)
     print("Creating warehouse uploader lambda")
-    create_lambdas(permit, deploy, upload_lambda_name, warehouse_uploader_role)
+    create_lambdas(permit, deploy, upload_lambda_name, warehouse_uploader_role, upload_handler_name)
     create = Create_resources()
 
     print("Assigning triggers to ingest bucket")
@@ -83,9 +89,9 @@ def deploy_lambdas():
         schedule_name=f'schedule-event-{ingest_lambda_name}', target_arn=lambda_arn)
 
 
-def create_lambdas(permit: Assign_iam, deploy: Deploy_lambdas, lambda_name, role_name):
+def create_lambdas(permit: Assign_iam, deploy: Deploy_lambdas, lambda_name:str, role_name:str, handler_method:str):
     deploy.create_lambda(lambda_name=lambda_name, code_bucket=code_bucket_name,
-                         role_arn=permit.role_arns[role_name], zip_file=f'{lambda_name}.zip')
+                         role_arn=permit.role_arns[role_name], zip_file=f'{lambda_name}.zip',handler_name=handler_method)
 
 
 def create_roles(permit: Assign_iam):

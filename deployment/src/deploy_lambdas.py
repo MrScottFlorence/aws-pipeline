@@ -24,10 +24,11 @@ class Deploy_lambdas():
             print(e)
             self.errors.append(e)
     
-    def create_lambda(self,lambda_name:str,code_bucket:str,zip_file:str,role_arn:str):
+    def create_lambda(self,lambda_name:str,code_bucket:str,zip_file:str,role_arn:str,handler_name:str):
         print(f"Creating lambda {lambda_name} using {code_bucket} {zip_file} and role arn {role_arn}")
         response = self.lambda_client.create_function(
                 FunctionName=lambda_name,
+                Handler=handler_name,
                 Runtime='python3.9',
                 Role=role_arn,
                 Code={
