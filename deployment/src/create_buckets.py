@@ -41,6 +41,9 @@ class Create_resources():
 
     def assign_bucket_update_event_triggers(self, bucket_name: str, lambda_arn: str, bucket_folders: list):
         """Trigger the appropriate lambda function when a bucket folder has new files added"""
+        if lambda_arn==None or bucket_name==None:
+            print(f'Incomplete parameters for creating trigger')
+            return
         notification_config = {
             'LambdaFunctionConfigurations': [
                 {
