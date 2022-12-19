@@ -19,12 +19,12 @@ jobs:
           pip install pandas -t .
           pip install pg8000 -t .
           CURRENTLOC=$(pwd)
-
+          ls -la
           echo Zipping dependencies
           cd pandas
           echo Zipping from $(pwd) to $(${CURRENTLOC}/pandas.zip)
           zip -r9 ${CURRENTLOC}/pandas.zip .
-          cd pg8000
+          cd ../pg8000
           echo Zipping from $(pwd) to $(${CURRENTLOC}/pg8000.zip)
           zip -r9 ${CURRENTLOC}/pg8000.zip .
           # -r deployment/requirements.txt
