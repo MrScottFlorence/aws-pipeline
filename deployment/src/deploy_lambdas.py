@@ -40,7 +40,7 @@ class Deploy_lambdas():
     def create_lambda_layer(self,layer_name:str,zipfile:str,description:str):
         with open(zipfile, 'rb') as file:
             file_contents = file.read()
-            response = self.lambda_client.create_layer_version(
+            response = self.lambda_client.publish_layer_version(
                 LayerName=layer_name,
                 Content={'ZipFile':file_contents},
                 CompatibleRuntimes=['python3.9'],
