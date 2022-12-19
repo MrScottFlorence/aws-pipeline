@@ -132,10 +132,10 @@ def create_roles(permit: Assign_iam):
     permit.attach_execution_role(role_name=process_sales_role)
 
     permit.create_lambda_role(role_name=warehouse_uploader_role)
-    permit.attach_custom_policy(role_name=process_sales_role,
+    permit.attach_custom_policy(role_name=warehouse_uploader_role,
                                 policy=f"s3-read-{processed_bucket_name}-{upload_lambda_name}")
     permit.attach_custom_policy(
-        role_name=process_sales_role, policy=f"cloudwatch-policy-{upload_lambda_name}")
+        role_name=warehouse_uploader_role, policy=f"cloudwatch-policy-{upload_lambda_name}")
     permit.attach_execution_role(role_name=warehouse_uploader_role)
 
 
