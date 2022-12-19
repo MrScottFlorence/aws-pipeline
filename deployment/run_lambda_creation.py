@@ -88,7 +88,7 @@ def create_lambdas(permit: Assign_iam, deploy: Deploy_lambdas, lambda_name, role
 def create_roles(permit: Assign_iam):
     permit.create_lambda_role(role_name=ingest_role)
     permit.attach_custom_policy(
-        role_name=ingest_role, policy=f"s3-read-{ingest_bucket_name}-{ingest_lambda_name}")
+        role_name=ingest_role, policy=f"s3-read-write-{ingest_bucket_name}-{ingest_lambda_name}")
     permit.attach_custom_policy(
         role_name=ingest_role, policy=f"cloudwatch-policy-{ingest_lambda_name}")
     permit.attach_execution_role(role_name=ingest_role)
@@ -167,5 +167,5 @@ def create_policies(permit: Assign_iam):
 
 
 if __name__ == '__main__':
-    create_dependency_zips()
+    # create_dependency_zips()
     deploy_lambdas()
