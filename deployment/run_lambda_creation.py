@@ -66,20 +66,24 @@ def deploy_lambdas():
     if process_payments_lambda_name in deploy.lambda_arns:
         create.assign_bucket_update_event_triggers(
             bucket_name=ingest_bucket_name, lambda_arn=deploy.lambda_arns[process_payments_lambda_name], bucket_folders=['TableName/'])
+    
     print(process_purchases_lambda_name,
           process_purchases_lambda_name in deploy.lambda_arns)
     if process_purchases_lambda_name in deploy.lambda_arns:
         create.assign_bucket_update_event_triggers(
             bucket_name=ingest_bucket_name, lambda_arn=deploy.lambda_arns[process_purchases_lambda_name], bucket_folders=['TableName/'])
+    
     print(process_sales_lambda_name,
           process_sales_lambda_name in deploy.lambda_arns)
     if process_sales_lambda_name in deploy.lambda_arns:
         create.assign_bucket_update_event_triggers(
             bucket_name=ingest_bucket_name, lambda_arn=deploy.lambda_arns[process_sales_lambda_name], bucket_folders=['TableName/'])
+
     print(upload_lambda_name, upload_lambda_name in deploy.lambda_arns)
     if upload_lambda_name in deploy.lambda_arns:
         create.assign_bucket_update_event_triggers(
             bucket_name=processed_bucket_name, lambda_arn=deploy.lambda_arns[upload_lambda_name], bucket_folders=[''])
+    
     print("Creating scheduled trigger")
     event = Create_events()
     event.create_schedule_event(f'schedule-event-{ingest_lambda_name}', '5')
@@ -90,6 +94,19 @@ def deploy_lambdas():
     response = event.events.put_targets(Rule=f'schedule-event-{ingest_lambda_name}',Targets=[{'Id':ingest_lambda_name,'Arn':lambda_arn}])
     
     print("Assigning ingest period result via put targets: ", response)
+    print("Assigning targets to processing and upload")
+    response = event.create_bucket_check_rule(event_name=f'upload-rule-{ingest_bucket_name}',bucket_name=ingest_bucket_name,)
+    print(f'"Creating bucket rule {response}')
+    response = event.put_bucket_check_rule(event_name=f'upload-rule-{ingest_bucket_name}',
+                                targets=[{'Id':process_payments_lambda_name,'Arn':deploy.lambda_arns[process_payments_lambda_name]},
+                                         {'Id':process_purchases_lambda_name,'Arn':deploy.lambda_arns[process_purchases_lambda_name]},
+                                         {'Id':process_sales_lambda_name,'Arn':deploy.lambda_arns[process_sales_lambda_name]}])
+    print(f'"Putting bucket rule {response}')
+    response = event.create_bucket_check_rule(event_name=f'upload-rule-{processed_bucket_name}',bucket_name=processed_bucket_name,)
+    print(f'"Creating bucket rule {response}')
+    response = event.put_bucket_check_rule(event_name=f'upload-rule-{processed_bucket_name}',
+                                targets=[{'Id':upload_lambda_name,'Arn':deploy.lambda_arns[upload_lambda_name]}])
+    print(f'"Putting bucket rule {response}')
 
 
 def create_lambdas(permit: Assign_iam, deploy: Deploy_lambdas, lambda_name: str, role_name: str, handler_method: str):
