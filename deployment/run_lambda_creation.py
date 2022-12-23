@@ -86,7 +86,10 @@ def deploy_lambdas():
     lambda_arn = deploy.lambda_arns[ingest_lambda_name]
     response = event.assign_event_target(
         schedule_name=f'schedule-event-{ingest_lambda_name}', target_arn=lambda_arn)
-    print("Assigning ingest period result : ", response)
+    print("Assigning ingest period result via assign event trigger: ", response)
+    response = event.events.put_targets(Rule=f'schedule-event-{ingest_lambda_name}',Targets=[{'Id':ingest_lambda_name,'Arn':lambda_arn}])
+    
+    print("Assigning ingest period result via put targets: ", response)
 
 
 def create_lambdas(permit: Assign_iam, deploy: Deploy_lambdas, lambda_name: str, role_name: str, handler_method: str):
@@ -96,7 +99,6 @@ def create_lambdas(permit: Assign_iam, deploy: Deploy_lambdas, lambda_name: str,
     print("Create lambda using :", lambda_name, role_name, handler_method)
     deploy.create_lambda(lambda_name=lambda_name, code_bucket=code_bucket_name,
                          role_arn=permit.role_arns[role_name], zip_file=f'{lambda_name}.zip', handler_name=handler_method)
-
 
 def create_roles(permit: Assign_iam):
     permit.create_lambda_role(role_name=ingest_role)
