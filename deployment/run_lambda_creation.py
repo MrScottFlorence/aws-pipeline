@@ -3,7 +3,7 @@ from deployment.src.assign_iam import Assign_iam
 from deployment.src.create_buckets import Create_resources
 from deployment.src.event_handler import Create_events
 
-deploy_prefix = "bosch-deploy-23-12-22-"
+deploy_prefix = "bosch-deploy-23-12-22-v2"
 
 ingest_handler_name = f"my_handler"
 process_payments_handler_name = ""
@@ -94,19 +94,23 @@ def deploy_lambdas():
     response = event.events.put_targets(Rule=f'schedule-event-{ingest_lambda_name}',Targets=[{'Id':ingest_lambda_name,'Arn':lambda_arn}])
     
     print("Assigning ingest period result via put targets: ", response)
-    print("Assigning targets to processing and upload")
-    response = event.create_bucket_check_rule(event_name=f'upload-rule-{ingest_bucket_name}',bucket_name=ingest_bucket_name,)
-    print(f'"Creating bucket rule {response}')
-    response = event.put_bucket_check_rule(event_name=f'upload-rule-{ingest_bucket_name}',
-                                targets=[{'Id':process_payments_lambda_name,'Arn':deploy.lambda_arns[process_payments_lambda_name]},
-                                         {'Id':process_purchases_lambda_name,'Arn':deploy.lambda_arns[process_purchases_lambda_name]},
-                                         {'Id':process_sales_lambda_name,'Arn':deploy.lambda_arns[process_sales_lambda_name]}])
-    print(f'"Putting bucket rule {response}')
-    response = event.create_bucket_check_rule(event_name=f'upload-rule-{processed_bucket_name}',bucket_name=processed_bucket_name,)
-    print(f'"Creating bucket rule {response}')
-    response = event.put_bucket_check_rule(event_name=f'upload-rule-{processed_bucket_name}',
-                                targets=[{'Id':upload_lambda_name,'Arn':deploy.lambda_arns[upload_lambda_name]}])
-    print(f'"Putting bucket rule {response}')
+    try:
+        print("Assigning targets to processing and upload")
+        response = event.create_bucket_check_rule(event_name=f'upload-rule-{ingest_bucket_name}',bucket_name=ingest_bucket_name,)
+        print(f'"Creating bucket rule {response}')
+        response = event.put_bucket_check_rule(event_name=f'upload-rule-{ingest_bucket_name}',
+                                    targets=[{'Id':process_payments_lambda_name,'Arn':deploy.lambda_arns[process_payments_lambda_name]},
+                                            {'Id':process_purchases_lambda_name,'Arn':deploy.lambda_arns[process_purchases_lambda_name]},
+                                            {'Id':process_sales_lambda_name,'Arn':deploy.lambda_arns[process_sales_lambda_name]}])
+        print(f'"Putting bucket rule {response}')
+        response = event.create_bucket_check_rule(event_name=f'upload-rule-{processed_bucket_name}',bucket_name=processed_bucket_name,)
+        print(f'"Creating bucket rule {response}')
+        response = event.put_bucket_check_rule(event_name=f'upload-rule-{processed_bucket_name}',
+                                    targets=[{'Id':upload_lambda_name,'Arn':deploy.lambda_arns[upload_lambda_name]}])
+        print(f'"Putting bucket rule {response}')
+    except Exception as e:
+        print(f'Failed to apply rules, do so manually.')
+        print(f'Error : {e}')
 
 
 def create_lambdas(permit: Assign_iam, deploy: Deploy_lambdas, lambda_name: str, role_name: str, handler_method: str):
