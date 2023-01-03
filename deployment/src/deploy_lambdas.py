@@ -48,6 +48,7 @@ class Deploy_lambdas():
                 self.lambda_arns[lambda_name] = response['FunctionArn']
                 if response == {}:
                     time.sleep(1)
+                    print(f"Lambda creation failed {attempts} time{'s' if attempts > 1 else ''}")
             except ClientError as ce:
                 if ce.response['Error']['Code'] == 'ResourceConflictException':
                     print(

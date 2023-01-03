@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - main
-      - resolve-lambda-forming-issue
 
 jobs:
   create-buckets-and-lambdas:
