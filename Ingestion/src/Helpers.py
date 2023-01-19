@@ -3,9 +3,10 @@ import json
 from botocore.exceptions import ClientError
 import logging
 
-##works on the basis that something has been uploaded into secrets manager under the name of 'totesys_credentials'
+
 
 def get_credentials(Secret_name):
+    '''Gets credentials that are stored in AWS secrets manager'''
     session = boto3.session.Session()
     client = session.client(
         service_name='secretsmanager'
@@ -15,13 +16,13 @@ def get_credentials(Secret_name):
                 SecretId=Secret_name
     )
     except ClientError as ce:
-        print('ERROR, check if correct secret name.' , ce.response['Error']['Code'])
+        logging.info('ERROR, check if correct secret name.' , ce.response['Error']['Code'])
         raise ClientError(operation_name='ResourceNotFound', error_response={
             'Error': {
                 'Code': 'ResourceNotFound',
                 'Message': 'CHECK IF CREDENTIALS ARE CORRECT'
             }
-        }) ## Having to force it to raise a ClientError??
+        }) 
    
     secret_dict = json.loads(secret['SecretString'])
 
@@ -44,8 +45,9 @@ def put_into_bucket(bucket_name, table_name,
 
 def delete_last_run_num_object(bucket_name, prefix):
     '''If ingestion fails, and increment has already happened, then this will
-    clean up the increment file'''
-    print('Returning last object name for specific prefix...')
+    clean up the increment file
+    '''
+    logging.info('Returning last object name for specific prefix...')
     s3 = boto3.client('s3')
     paginator = s3.get_paginator( "list_objects_v2" )
     page_iterator = paginator.paginate(Bucket=bucket_name, Prefix=prefix)
@@ -55,20 +57,19 @@ def delete_last_run_num_object(bucket_name, prefix):
             latest2 = max(page['Contents'], key=lambda x: x['LastModified'])
             if latest is None or latest2['LastModified'] > latest['LastModified']:
                 latest = latest2
-    print(latest['Key'], '<- Removing...')
+    logging.info(latest['Key'], '<- Removing...')
     try:
         s3.delete_object(Bucket=bucket_name, Key=latest['Key'])
     except ClientError as ce:
-        print(ce)
-        logging.error('Have to clean this up manually now')
+        logging.error(f'{ce}, Have to clean this up manually now')
         if ce.response['Error']['Code']=='AccessDenied':
-            print('Someone probably forgot to give you access ')
+            logging.info('Someone probably forgot to give you access ')
     
-        ## if you wanted to build on this youd remove the eventbridge
-        ##if you got access denied, or its possible its just overflows
 
-##Validates that what is being passed into sql query is correct
+
+
 def table_name_checker(table_name):
+    '''Validates table name in SQL query'''
     table_names=['counterparty',
                 'currency',
                 'department',

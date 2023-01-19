@@ -1,8 +1,6 @@
-import unittest
 from unittest.mock import patch
 from src.Ingest_scheduler import getting_caller_id
 import boto3
-from moto import mock_sts
 import pytest
 from botocore.exceptions import ClientError
 

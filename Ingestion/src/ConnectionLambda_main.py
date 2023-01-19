@@ -1,12 +1,11 @@
 import pg8000
 import pandas as pd
-import datetime
 import boto3
 import logging
 from botocore.exceptions import ClientError
 from Helpers import get_credentials, put_into_bucket, delete_last_run_num_object, table_name_checker
 from RunNumberTracker import num_track_run_func, check_input_details_correct, check_bucket, create_initial_time_stamp_file, getting_last_object, check_if_empty_bucket, push_updated_file_back_to_bucket, increment_run_number
-import time
+
 
 def my_handler(event, context):
 
@@ -47,10 +46,10 @@ def my_handler(event, context):
     logging.info(f"All table names within the database: {tables}")
 
 
-    logging.error("Error logging is enabled") #purpose is to show errors work
+    logging.error("Error logging is enabled") 
     #iterative processs begins, formats data, then ingests into specific parts
     try:
-        for table in tables:     ## Goes over each table, then selects all from the table
+        for table in tables:   
             table_name = table[0] 
             if table_name_checker(table_name) == False:
                 quit()
@@ -70,7 +69,7 @@ def my_handler(event, context):
             list_of_column_names = []
             for name in column_names:
                 list_of_column_names.append(name[0])
-            ##formatted above for pandas, have colums as a list and data as nested list containing rows
+
             ## now to combine into a dataframe to upload column names with their respective data
 
             Database_df = pd.DataFrame(table_row_data, columns=list_of_column_names)        
@@ -94,4 +93,3 @@ def my_handler(event, context):
     conn.close()
 
 
-# my_handler()

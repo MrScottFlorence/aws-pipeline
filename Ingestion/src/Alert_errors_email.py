@@ -43,11 +43,10 @@ def create_sns_topic():
             Name="errors-topic"
         )
         createdErr_topic_arn = create_response["TopicArn"]
-        # print(createdErr_topic_arn)
         return createdErr_topic_arn
     except ClientError as ce:
         print('Error', ce)
-        quit()
+
 
 
 
@@ -62,12 +61,13 @@ def subscribe_by_email(createdErr_topic_arn):
         )
     except ClientError as ce:
         print('Error', ce)
-        quit()
 
 
 
-##Adds metric alarm, testing against the 1 given by the filter, if >= then 
-##alarmactions = topic_arn which sends me an email
+
+##Adds metric alarm, testing against the 1 given by the filter, if >= then alert
+# shows subscriber list
+
 def put_metric_alarm(createdErr_topic_arn):
     cloudwatch = boto3.client('cloudwatch',region_name='us-east-1')
     try:
@@ -87,7 +87,7 @@ def put_metric_alarm(createdErr_topic_arn):
     )
     except ClientError as ce:
         print('Error', ce)
-        quit()
+
 
 
 def sub_list():
@@ -98,14 +98,14 @@ def sub_list():
         print('Subscribers: ', subscriber_list['Subscriptions'])
     except ClientError as ce:
         print('Error', ce)
-        quit()
 
 
-## thoughts on how i could make this better, make it user input based and f strings
-## then easier to add people to a certain topic or something like that
 
 def main():
-    put_metric_filter_func(logGroupName="/aws/lambda/Ingestion_Function5", filterName="errors-filter", filterPattern="ERROR", metricTransformations=[
+    put_metric_filter_func(logGroupName="/aws/lambda/Ingestion_Function5", 
+    filterName="errors-filter", 
+    filterPattern="ERROR", 
+    metricTransformations=[
                 {
                     "metricValue": "1",
                     "metricNamespace": "Testing_for_errors_Lambda_With_Metric_Filter",

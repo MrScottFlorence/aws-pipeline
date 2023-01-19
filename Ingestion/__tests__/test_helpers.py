@@ -2,7 +2,7 @@ import boto3
 import json
 import pytest
 from moto import mock_secretsmanager, mock_s3
-from src.Helpers import get_credentials, put_into_bucket, delete_TESTFUNC_last_run_num_object, table_name_checker
+from src.Helpers import get_credentials, put_into_bucket, delete_last_run_num_object
 from botocore.exceptions import ClientError
 import unittest
 import time
@@ -13,18 +13,17 @@ def secrets_client():
         yield boto3.client("secretsmanager")
 
 
-
 def test_that_returns_correct_credentials_from_a_secret(secrets_client):
-    #Create a secret in the mock secrets manager service
+    # Create a secret in the mock secrets manager service
     secrets_client.create_secret(
         Name="totesys_credentials",
         SecretString='{"user": "test_user", "password": "test_pass", "host": "test_host"}'
     )
 
-    #Call the get_credentials() function with the secret name
+    # Call the get_credentials() function with the secret name
     username, passw, host = get_credentials('totesys_credentials')
 
-    #Assert that the function returns the expected credentials
+    # Assert that the function returns the expected credentials
     assert username == "test_user"
     assert passw == "test_pass"
     assert host == "test_host"        
@@ -41,7 +40,6 @@ def test_that_entering_wrong_credentials_name_raises_error(secrets_client):
         get_credentials('totsys_credentials')
 
     assert 'ResourceNotFound' in str(ce)
-
 
 
 @mock_s3
@@ -93,7 +91,7 @@ def test_can_be_called_multiple_times_and_store_multiple_objects():
     response_list = s3conn.list_objects_v2(Bucket=test_bucket_name)
     assert len(response_list['Contents']) == 4
 
-    delete_TESTFUNC_last_run_num_object(bucket_name=test_bucket_name)
+    delete_last_run_num_object(bucket_name=test_bucket_name)
 
     response_list2 = s3conn.list_objects_v2(Bucket=test_bucket_name)
     assert len(response_list2['Contents']) == 3
